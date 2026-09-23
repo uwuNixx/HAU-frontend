@@ -37,4 +37,4 @@ const ApplicationsAPI = {
       return application;
     },
   };
-  export default ApplicationAPI;
+  export default ApplicationsAPI;
