@@ -7,6 +7,7 @@ const INITIAL_FORM = {
 };
 
 const toDisplayDate = (isoDate) => {
+  if (!isoDate.includes('-')) return isoDate; // браузер отдал уже готовую строку
   const [year, month, day] = isoDate.split('-');
   return `${day}.${month}.${year}`;
 };

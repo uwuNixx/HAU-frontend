@@ -24,9 +24,9 @@ const ApplicationsAPI = {
       application = {
           ...application,
           id:
-            this.applications.reduce((prev, current) => {
-              return prev.id > current.id ? prev : current;
-            }, 0).id + 1,
+            this.applications.reduce((maxId, current) => {
+              return maxId > current.id ? maxId : current.id;
+            }, 0) + 1,
         };
       this.applications = [...this.applications, application];
       return application;
