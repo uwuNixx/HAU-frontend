@@ -1,27 +1,51 @@
 import { useState } from 'react';
-import ApplicationsAPI from './api/ApplicationsAPI';
-import ApplicationForm from './pages/ApplicationsForm';
-import ApplicationTable from './pages/ApplicationsTable';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import AuthorizationAPI from './api/AuthorizationAPI';
+import LoginPage from './pages/LoginPage';
+import ApplicationsPage from './pages/ApplicationsPage';
 import './App.css';
 
 export default function App() {
-  const [applications, setApplications] = useState(() => [...ApplicationsAPI.all()]);
+  const [currentUser, setCurrentUser] = useState(() => AuthorizationAPI.getCurrentUser());
 
-  const handleAdd = (data) => {
-    ApplicationsAPI.add(data);
-    setApplications([...ApplicationsAPI.all()]);   // новая ссылка → ререндер
+  const handleLogin = ({ login, password }) => {
+    const user = AuthorizationAPI.login(login, password);
+
+    if (!user) return false;
+
+    setCurrentUser(user);
+    return true;
   };
 
-  const handleDelete = (id) => {
-    ApplicationsAPI.delete(id);
-    setApplications([...ApplicationsAPI.all()]);
+  const handleLogout = () => {
+    AuthorizationAPI.logout();
+    setCurrentUser(null);
   };
 
   return (
     <div className="app">
-      <ApplicationForm onAdd={handleAdd} />
-      <h1>Applications</h1>
-      <ApplicationTable applications={applications} onDelete={handleDelete} />
+      {currentUser && (
+        <header className="app-header">
+          <span className="app-header__user">
+            {currentUser.fullName} ({currentUser.role})
+          </span>
+          <button className="btn-delete" type="button" onClick={handleLogout}>
+            Выйти
+          </button>
+        </header>
+      )}
+
+      <Routes>
+        <Route
+          path="/login"
+          element={currentUser ? <Navigate to="/" replace /> : <LoginPage onLogin={handleLogin} />}
+        />
+        <Route
+          path="/"
+          element={currentUser ? <ApplicationsPage /> : <Navigate to="/login" replace />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 }
